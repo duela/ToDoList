@@ -3,26 +3,31 @@
   <head>
     <meta charset="utf-8">
     <title>To do List</title>
+    <link rel="stylesheet" href="css/styles.css">
   </head>
   <body>
-    
-    <!-- <% if (kindOfDay === "Sunday"){ %>
-      <h1 style="color: red;">It's a <%= kindOfDay %>!</h1>
-    <% } else{ %>
-      <h1 style="color: blue;">It's a <%= kindOfDay %>!</h1>
-    <% } %> -->
-    <h1>It's a <%= kindOfDay %>!</h1>
-    <ul>
-    <%  for (var i = 0; i < newLists.length; i++) { %>
-        <li><%= newLists[i] %></li>
-    <%  }  %>
-    </ul>
-    <div >
-      <!-- this post the infromation to my rooe server -->
-      <form action="/" method="post">
-        <input type="text" name="newList">
-        <button type="submit" name="button"> Add list</button>
-      </form>
+    <div class="box" id="heading">
+      <h1><%= listTitle %></h1>
     </div>
+    <div class="box">
+      <%  for (var i = 0; i < newLists.length; i++) { %>
+        <div class="item">
+          <input type="checkbox">
+            <p><%= newLists[i] %></p>
+        </div>
+      <%  }  %>
+        <!-- this post the infromation to my rooe server -->
+        <form class="item" action="/" method="post">
+          <input type="text" name="newList" placeholder="New item" autocomplete="off">
+          <button type="submit" name="list" value="<%= listTitle %>">+</button>
+        </form>
+
+    </div>
+    <div class="box-sp">
+      <a class="sp" style="margin-right: 280px;" href="http://www.localhost:3000"> To do list</a>
+      <a class="sp" href="http://www.localhost:3000/work" > Work list</a>
+    </div>
+
+
   </body>
 </html>
