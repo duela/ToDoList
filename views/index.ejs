@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>To do List</title>
-    <link rel="stylesheet" href="css/styles.css">
-  </head>
-  <body>
+<%- include('header'); -%>
     <div class="box" id="heading">
       <h1><%= listTitle %></h1>
     </div>
@@ -23,11 +16,5 @@
         </form>
 
     </div>
-    <div class="box-sp">
-      <a class="sp" style="margin-right: 280px;" href="http://www.localhost:3000"> To do list</a>
-      <a class="sp" href="http://www.localhost:3000/work" > Work list</a>
-    </div>
-
-
-  </body>
-</html>
+  
+<%- include('footer'); -%>
