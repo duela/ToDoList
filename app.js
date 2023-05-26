@@ -2,6 +2,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+// using __dirname + filename because the module is local and not installed through npm
+const date = require(__dirname + "/date.js");
+
 const port = 3000;
 const ejs = require('ejs');
 let addLists = ["Buy Food","Cook Food", "Eat Food"];
@@ -16,11 +19,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 // creating the first get root to send the user Hello when the user access the home root
 app.get('/', function(req, res) {
 
-  let options = { weekday: 'long', month: 'long', day: 'numeric' };
-  let today  = new Date();
-
-  let day = today.toLocaleDateString("en-US", options);
-
+  const day = date.getDay()
 
   res.render('index', {listTitle: day, newLists: addLists});
   //res.send('Hello');  // res.send parse data from the server to the browser, allowing us to perform logic on how server
