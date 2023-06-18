@@ -54,7 +54,7 @@ main().catch(err => console.log(err));
    Item.find({}).then(function(res){
      res.forEach(function(itemInDB) {
        const addList = itemInDB.name;
-       console.log(addList);
+       //console.log(addList);
        addLists.push(addList);
      });
    });
@@ -72,10 +72,18 @@ app.post('/', function(req, res){
   var item = req.body.newList;
   var item = _.capitalize(item);
   if (req.body.list === "Work List") {
+    const itemWorkList = new Item({
+      name: item
+    });
+    itemWorkList.save();
     workItems.push(item);
     res.redirect('/work');
   }
   else {
+    const itemAddList = new Item({
+      name : item
+    });
+    itemAddList.save();
     addLists.push(item);
     res.redirect('/');
   }
