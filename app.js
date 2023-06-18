@@ -4,28 +4,73 @@ const bodyParser = require('body-parser');
 const app = express();
 // using __dirname + filename because the module is local and not installed through npm
 const date = require(__dirname + "/date.js");
+const _ = require('lodash');
+const mongoose = require('mongoose');
 
 const port = 3000;
 const ejs = require('ejs');
-let addLists = ["Buy Food","Cook Food", "Eat Food"];
+let addLists = [];
 let workItems = [];
 // set app view engine to ejs : always plca eit below the declaration
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+
+main().catch(err => console.log(err));
+ async function main(){
+    // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
+  await mongoose.connect('mongodb://127.0.0.1:27017/itemsDB');
+}
+  //create a new items SCHEMA that sets out the fields each document will have and their datatypes for items
+  const itemsSchema = new mongoose.Schema(
+    {
+    name: String
+  });
+
+  //create a MODEL with collectetion name as first parameter
+   const Item = mongoose.model('Item', itemsSchema); // mongoose convert the singular string collection in the query to plural form e.g item -> items
+   // The Item has to stick to the structure specified in the schema
+  //create item DOCUMENT
+   const item1 = new Item(
+     {
+       name: 'Buy food'
+     });
+
+   const item2 = new Item(
+     {
+     name: 'Cook food'
+   });
+
+   const item3 = new Item({
+     name: 'Eat food'
+   });
+
+   const listItems = [item1, item2, item3];
+
+   // Item.insertMany(listItems).then(function(){
+   //   console.log("Seucessfully saved all the items to ItemsDB");
+   // }).catch(function(err) {
+   //   console.log(err);
+   // });
+   Item.find({}).then(function(res){
+     res.forEach(function(itemInDB) {
+       const addList = itemInDB.name;
+       console.log(addList);
+       addLists.push(addList);
+     });
+   });
 
 // to retrieve parsed data from browser to server
 app.use(bodyParser.urlencoded({extended:true}));
 
 // creating the first get root to send the user Hello when the user access the home root
 app.get('/', function(req, res) {
-
   const day = date.getDay()
-
   res.render('index', {listTitle: day, newLists: addLists});
   //res.send('Hello');  // res.send parse data from the server to the browser, allowing us to perform logic on how server
 });
 app.post('/', function(req, res){
-  let item = req.body.newList;
+  var item = req.body.newList;
+  var item = _.capitalize(item);
   if (req.body.list === "Work List") {
     workItems.push(item);
     res.redirect('/work');
