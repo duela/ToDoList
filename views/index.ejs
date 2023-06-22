@@ -4,10 +4,14 @@
     </div>
     <div class="box">
       <%  for (var i = 0; i < newLists.length; i++) { %>
-        <div class="item">
-          <input type="checkbox">
-            <p><%= newLists[i] %></p>
-        </div>
+        <form action="/delete" method="post">
+          <div class="item">
+            <!-- submit a form when a checkbox is checked -->
+            <input type="checkbox" onChange="this.form.submit()" name="deleteList" value="<%= newLists[i] %>">
+              <p><%= newLists[i] %></p>
+          </div>
+        </form>
+
       <%  }  %>
         <!-- this post the infromation to my rooe server -->
         <form class="item" action="/" method="post">
