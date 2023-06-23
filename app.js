@@ -23,14 +23,14 @@ mongoose.connect("mongodb://127.0.0.1:27017/todolistDB");
 const itemSchema = new Schema({
     name: String
 });
-// Create an Item Model
+// Create an Item Model/collection
 const Item = mongoose.model("Item", itemSchema);
 // Create a list Schema
 const listSchema = new Schema({
    name: String,
    items: [itemSchema]    // relationship and embedding document of itemSchema to items
 });
-// Create a Work Model
+// Create a Work Model/collection
 const List = mongoose.model("List", listSchema);
 
 // Create documents
@@ -57,6 +57,7 @@ app.get("/", function(req, res){
                     .catch(function(err){
                         console.log(err);
                     });
+
                 res.redirect("/");
             } else {
                 res.render('list', { listTitle: "Today", newListItems: foundItems });
@@ -68,7 +69,7 @@ app.get("/", function(req, res){
 });
 
 app.get('/:customListName', function(req, res){
-  const customListName = _.lowerCase(req.params.customListName);
+  const customListName = _.capitalize(req.params.customListName);
   List.findOne({name: customListName})
          .then(function(foundList){ // foundItems is an array, so to check if the array is empty we use the length
            if (!foundList) {
@@ -81,9 +82,12 @@ app.get('/:customListName', function(req, res){
              list.save();
              res.redirect("/" + customListName);
          }
+         else if (customListName === "About") {
+           res.render('about');
+         }
          else { // show an existing list
              console.log("List found");
-            res.render('list', {listTitle: _.upperFirst(foundList.name), newListItems: foundList.items});
+            res.render('list', {listTitle: foundList.name, newListItems: foundList.items});
          }
          }).catch(function(err){
             console.log(err);
@@ -93,33 +97,71 @@ app.get('/:customListName', function(req, res){
 });
 
 //Sending the about.ejs file to the browser as soon as a request is made on localhost:3000 to local route localhost:3000/about
-app.get('/about', function(req, res){
-  res.render('about');
-});
+// app.get('/about', function(req, res){
+//   res.render('about');
+// });
 
 // post request "/"
 app.post("/", (req, res) => {
     const itemName = req.body.newItem;
+    const listName = req.body.list.trim();  // This post the name of the occurence when the button is submitted, which is "list" and the value associated with listTitle e.g today, work, school etc
+    const item = new Item ({
+        name: itemName
+    });
+      if (listName === "Today") {
 
-      const item = new Item ({
-          name: itemName
-      });
-      item.save();
-      res.redirect("/");
+        item.save();
+        res.redirect("/" );
+      }
+      else {
+        List.findOne({name: listName})
+        .then(function(foundList){
+          // const items = foundList.items;
+          // items.push(item);                 // to tap into embedded arrays of items and push item into the arrays of items
+          // console.log(items);
+          // foundList.save();      // save founlList to update it with the new data
+          // res.redirect('/' + listName);
+          foundList.items.push(item);
+          //console.log(foundList.items);
+          foundList.save();
+          res.redirect('/' + listName);
+        }).catch(function(err){
+          console.log(err);
+        });
+      }
+
 });
 app.post("/delete",function(req,res){
     const checkedItemId = req.body.checkbox.trim();
-  //  console.log(checkedItemId);
-    Item.findByIdAndRemove(checkedItemId)
-    .then(() => {
-        console.log("Succesfully deleted checked item from the database");
-        res.redirect("/");
-    }).catch((err) => {
-        console.log(err);
-    })
+    const listName = req.body.listName.trim();   // using hidden input, listName post the value to /delete route
+    console.log(listName);
+    console.log(checkedItemId);
+    if (listName === "Today") {
+      Item.findByIdAndRemove(checkedItemId)
+      .then(function(){                        // callback
+          console.log("Succesfully deleted checked " + listName + " item from the database");
+          res.redirect("/");
+      }).catch(function(err){
+          console.log(err);
+      });
+    }
+    else {
+      List.findOneAndUpdate({name: listName}, {
+        $pull: {                                      // pull is used to remove a value from an existing array
+          items: {_id: checkedItemId}                 // checkedItemId is an array
+        }
+      }).then(function(){
+        console.log("Succesfully deleted checked " + listName + " item from the database");
+        res.redirect("/" + listName);
+      }).catch(function(err) {
+        res.redirect("/" + listName);
+        console.log("No " + listName +  " item to delete");
+      });
+    }
+
 });
 
-app.listen(3000, () => {
+app.listen(3000, function(){
     console.log("Server started on port 3000");
 
 });
